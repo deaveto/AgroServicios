@@ -1,0 +1,5 @@
+.mi-tabla {
+    height: 100px; /* Establece una altura para la tabla, para que se muestre la barra de desplazamiento vertical */
+    overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+  }
+  

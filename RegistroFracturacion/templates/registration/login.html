@@ -1,0 +1,48 @@
+{% extends "./base.html" %}
+{% block title %} Facturación {% endblock %}
+
+{% block body %}
+
+<head>
+    <title>Iniciar sesión</title>
+</head>
+
+<div class="row">    
+    <h1>Iniciar sesión</h1>
+    <hr>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                
+                <form method="post">{% csrf_token %}
+                    <div class="form-group" id="username">
+                        <h4>Usuario:</h4>
+                        {{ form.username }}
+                    </div>
+                    <div class="form-group" id="password">
+                        <p></p>
+                        <h4>Clave:</h4>
+                        {{ form.password }}
+                    </div>
+                    <p></p>
+                    <button id="btn-registrar" class="btn btn-success btn-block text-white">Entrar</button>
+                    <div class="clearfix"></div>
+                </form>
+                <a href="#" class="txt_verde txt_center mt15 mb20" style="display: block">Aviso de prioridad</a>
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <p>Usuario y/o Contraseña no coinciden</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        
+    </div>
+</div>
+{% endblock %}
+
