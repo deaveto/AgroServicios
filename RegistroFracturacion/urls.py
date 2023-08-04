@@ -25,4 +25,6 @@ urlpatterns = [
     path('exportar/', views.Exportar, name='exportar'),
     path('LimpiarTablaF/', views.LimpiarTablaF),
     path('LimpiarTablaR/', views.LimpiarTablaR),
+
+    path('no_tiene_permisos/', views.no_tiene_permisos),
 ]

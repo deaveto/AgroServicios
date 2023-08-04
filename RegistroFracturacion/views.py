@@ -6,15 +6,40 @@ from django.db import IntegrityError
 from django.db.models import Sum
 from openpyxl import Workbook
 from django.http import FileResponse
-from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render, HttpResponseRedirect, reverse
+
+
+#Crea decoradores de vista personalizados que verificarán los permisos de los usuarios
+def es_administrador(user):
+    result = user.groups.filter(name='Administrador').exists()
+    print(f"Usuario {user} es administrador: {result}")
+    return result
+def es_gestor(user):
+    result = user.groups.filter(name='Gestor').exists()
+    print(f"Usuario {user} es gestor: {result}")
+    return result
+def es_administrador_o_gestor(user):
+    return user.groups.filter(name='Administrador').exists() or user.groups.filter(name='Gestor').exists()
+def no_tiene_permisos(request):
+    return render(request, 'no_permisos.html') 
+
+
 
 # Create your views here.
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def home(request):
     return render(request,"home.html")
 
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador_o_gestor)
+def inventario(request):
+    ListaProductos = Productos.objects.all()               
+    return render(request,"inventario.html", {"inventario":ListaProductos}) 
+
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador, no_tiene_permisos) #permisos de adminitrador y gesto
 def ventas(request):
     ListaCliente = Comprador.objects.all()
     ListaContratista = Comprador.objects.all()
@@ -25,25 +50,9 @@ def ventas(request):
         "ventas": factura
     }
     return render(request,"ventas.html", context)
-
-@login_required
-def reporte(request):    
-    ListaProductos = Factura.objects.all()
-    ListaCliente = Comprador.objects.all()
-    ListaProducto = Productos.objects.all()
-    context={
-        "cliente":ListaCliente,
-        "producto":ListaProducto,
-        "reporte":ListaProductos,
-    }
-    return render(request,"reporte.html", context)
-
-@login_required
-def inventario(request):
-    ListaProductos = Productos.objects.all()
-    return render(request,"inventario.html", {"inventario":ListaProductos})    
-
-@login_required
+     
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador, no_tiene_permisos)
 def registrarproducto(request):
     try:
         codigo = request.POST['txtCodigo']
@@ -58,7 +67,8 @@ def registrarproducto(request):
         return redirect('/inventario/')
     
 #Eliminar producto
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador,no_tiene_permisos)
 def eliminacionProducto(request, codigo):
     producto = Productos.objects.get(codigopr=codigo)
     producto.delete()
@@ -66,12 +76,14 @@ def eliminacionProducto(request, codigo):
     return redirect('/inventario/')
 
 #editar producto
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador, no_tiene_permisos)
 def edicionProducto(request, codigo):
     producto = Productos.objects.get(codigopr=codigo)
     return render(request,"edicionProducto.html",{"producto":producto})
 
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador, no_tiene_permisos)
 def editarProducto(request):
     codigo = request.POST['txtCodigo']
     producto = request.POST['txtProducto']
@@ -85,8 +97,23 @@ def editarProducto(request):
     messages.success(request,'¡Productos Actualizado!')
     return redirect('/inventario/')
 
-#Registro de compra   
-@login_required 
+#Registro de compra  
+# factura_agregados = [] 
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+@user_passes_test(es_administrador_o_gestor)
+def reporte(request):   
+    #ListaProductos = factura_agregados 
+    ListaProductos = FacturaTemp.objects.all()
+    ListaCliente = Comprador.objects.all()
+    ListaProducto = Productos.objects.all()
+    context={
+        #"factura_agregados":ListaProductos,
+        "cliente":ListaCliente,
+        "producto":ListaProducto,
+        "reporte":ListaProductos,
+    }
+    return render(request,"reporte.html", context)
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def registrarcompra(request):
     codigoCl = request.POST['Codigo_cliente']
     cliente = Comprador.objects.get(cedula=codigoCl)
@@ -102,14 +129,50 @@ def registrarcompra(request):
     precio = prec.precio
     precioT = int(cantidad) * int(precio)
     descrip = request.POST['desc']        
-    prd = Factura.objects.create(cdcomprador=codigoCl,nombre = nombre_cliente,apellido = apellido_cliente, contratista= contratista_cliente, codigopr=codigoPr,producto=NomPrd, cantidad=cantidad,fecha = fecha,precio=precio,precioTotal=precioT, descripcion=descrip)
+    prd = FacturaTemp.objects.create(cdcomprador=codigoCl,nombre = nombre_cliente,apellido = apellido_cliente, contratista= contratista_cliente, codigopr=codigoPr,producto=NomPrd, cantidad=cantidad,fecha = fecha,precio=precio,precioTotal=precioT, descripcion=descrip)
     messages.success(request,'  ¡Registro de compra OK!')
     return redirect('/reporte/')
+'''
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
+def registrarcompra(request):
+    
+    if request.method == 'POST':
+        codigoCl = request.POST['Codigo_cliente']
+        cliente = Comprador.objects.get(cedula=codigoCl)
+        nombre_cliente = cliente.nombre
+        apellido_cliente = cliente.apellido
+        contratista_cliente = cliente.contratista
+        codigoPr = request.POST['Nombre_producto']
+        cod = Productos.objects.get(codigopr=codigoPr)
+        NomPrd = cod.producto
+        cantidad = request.POST['Cant']    
+        fecha = date.today()
+        prec = Productos.objects.get(codigopr=codigoPr)
+        precio = prec.precio
+        precioT = int(cantidad) * int(precio)
+        descrip = request.POST['desc']   
 
+        factura_temporal = { 
+           'cdcomprador'  : codigoCl,
+            'nombre' : nombre_cliente,
+            'apellido' : apellido_cliente,
+            'contratista' : contratista_cliente,
+            'codigopr' :  cod,
+            'producto' :  NomPrd,
+            'cantidad' :  cantidad,
+            'fecha' : fecha,
+            'precio' : precio,   
+            'precioTotal' : precioT, 
+            'descripcion' : descrip  
+        }
+    factura_agregados.append(factura_temporal)     
+    messages.success(request,'  ¡Registro de compra OK!')
+    return render(request, 'reporte.html', {'factura_agregados': factura_agregados})
+'''
 # Eliminar compra
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def eliminacionProductoCompra(request, codigo):
-    factura = Factura.objects.get(cdcomprador=codigo)
+    factura = FacturaTemp.objects.get(cdcomprador=codigo)
     factura.delete()
     messages.success(request,'¡Registro Eliminado!')
     return redirect('/reporte/')
@@ -117,16 +180,16 @@ def eliminacionProductoCompra(request, codigo):
 # Editar producto
 @login_required
 def edicionProductoCompra(request, codigo):
-    factura = Factura.objects.get(cdcomprador=codigo)
+    factura = FacturaTemp.objects.get(cdcomprador=codigo)
     return render(request,"edicionProductoCompra.html",{"factura":factura})
 
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def editarProductoCompra(request):
     codigo = request.POST['txtCodigo']
     codproducto = request.POST['txtProducto']
     cantidad = request.POST['txtCantidad']
     descrip = request.POST['txtDescrip']    
-    prd = Factura.objects.get(cdcomprador=codigo)
+    prd = FacturaTemp.objects.get(cdcomprador=codigo)
     Nomprd = Productos.objects.get(codigopr = codproducto)
     prd.codigopr = codproducto
     prd.cantidad = cantidad
@@ -141,9 +204,9 @@ def editarProductoCompra(request):
     return redirect('/reporte/')
 
 # Copiar los datos temporales en la tabla de ventas
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def copiarDatosFacturaAventes(request):
-    factura = Factura.objects.all()
+    factura = FacturaTemp.objects.all()
     for dato in factura:
         venta = Ventas()
         venta.di = dato.di
@@ -162,11 +225,11 @@ def copiarDatosFacturaAventes(request):
         producto = Productos.objects.get(codigopr=dato.codigopr)
         producto.cantidad = int(producto.cantidad)-int(dato.cantidad)
         producto.save()
-    factura = Factura.objects.all().delete()
+    factura = FacturaTemp.objects.all().delete()
     messages.success(request,'¡Productos Registrados!')
     return redirect('/reporte/')
 
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def ConsultaVentasCliente(request):  
     factura = Recibo.objects.all().delete()
     codigoCliente = request.POST['Codigo_cliente']
@@ -192,7 +255,7 @@ def ConsultaVentasCliente(request):
     factura = Recibo.objects.all()
     return render(request, 'ventas.html', {'ventas': factura,'suma_preciototal': suma_preciototal})
 
-@login_required    
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas    
 def ConsultaVentasContratista(request):    
     factura = Recibo.objects.all().delete()
     contratis = request.POST['Nombre_Contratista']
@@ -218,7 +281,7 @@ def ConsultaVentasContratista(request):
     factura = Recibo.objects.all()
     return render(request, 'ventas.html', {'ventas': factura, 'suma_preciototal': suma_preciototal})
 
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def Exportar(request):
     datos =  Recibo.objects.all()
     suma = Recibo.objects.aggregate(total=Sum('precioTotal'))
@@ -240,14 +303,14 @@ def Exportar(request):
     datos = Recibo.objects.all().delete()
     return response
 
-@login_required    
+@login_required  #funcion para que deba de iniciar sesión antes de ongresar a las vistas 
 def LimpiarTablaF(request):
     recibo = Recibo.objects.all()
     recibo.delete()
     messages.success(request,'¡Registro Eliminado!')
     return redirect('/ventas/')
 
-@login_required
+@login_required #funcion para que deba de iniciar sesión antes de ongresar a las vistas
 def LimpiarTablaR(request):
     factura = Factura.objects.all()
     factura.delete()

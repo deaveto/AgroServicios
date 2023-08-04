@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-@_v*udas*q87xokugq+)_@@0&8z1za!duu7)gb%!b%4c#(q&n_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '192.168.1.3', '']#['localhost', '192.168.0.28', '192.168.0.17']
+ALLOWED_HOSTS = []#['localhost', '192.168.0.28', '192.168.0.17']
 
 LOGIN_REDIRECT_URL ='/inventario/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'

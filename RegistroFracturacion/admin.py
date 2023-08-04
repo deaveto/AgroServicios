@@ -16,7 +16,6 @@ class ListaVentas(admin.ModelAdmin):
 admin.site.register(Productos, ListaProductos)
 admin.site.register(Comprador, ListaComprador)
 admin.site.register(Ventas, ListaVentas)
-admin.site.register(Factura, ListaVentas)
 admin.site.register(Recibo, ListaVentas)
 admin.site.register(ContentType)
 admin.site.register(Permission)
