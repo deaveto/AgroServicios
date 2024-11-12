@@ -1,0 +1,34 @@
+{% extends "./base.html" %}
+
+{% block title %} Gestion de inventario {% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-4 offset-md-4"></div>
+    <h2>Edición de Producto en compra</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="/editarContatista/" method="POST">{% csrf_token %}
+                    <div class ="form-group">
+                        <p></p>
+                        <p>ID</p>
+                        <input type="text" id ="txtCodigo" name="txtCodigo" value="{{contratista.id}}" class="form-control" placeholder="Codigo"  maxlength="4" readonly required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <p>Contratista</p>
+                        <input type="text" id ="txtNombre" name="txtNombre" value="{{contratista.nombre}}" class="form-control" placeholder="contratista"  maxlength="50" required>
+                    </div>
+                    <p></p>
+                    <div class ="form-group">
+                        <button type="submit" class ="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
+
+
+
+
+{% endblock %}

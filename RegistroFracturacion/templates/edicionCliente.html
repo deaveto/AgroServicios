@@ -1,0 +1,49 @@
+{% extends "./base.html" %}
+
+{% block title %} Gestion de inventario {% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-4 offset-md-4"></div>
+    <h2>Edición de Productos</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="/editarCliente/" method="POST">{% csrf_token %}
+                    <div class ="form-group">
+                        <p></p>
+                        Cedula
+                        <input type="text" id ="txtCedula" name="txtCedula" value="{{producto.cedula}}" class="form-control" placeholder="Codigo" minlength="8" maxlength="10" readonly required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        Nombre
+                        <input type="text" id ="txtNombre" name="txtNombre" value="{{producto.nombre}}" class="form-control" placeholder="Producto" minlength="2" maxlength="20" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        Apellido
+                        <input type="text" id ="txtApellido" name="txtApellido" value="{{producto.apellido}}" class="form-control" placeholder="Precio UND" minlength="2" maxlength="20" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        Contratista
+                        <select id="Contratista" name="Nombre_Contratista" class="form-control" required>
+                            <option value="{{producto.contratista}}"> {{producto.contratista}}</option>
+                            {% for c in contratista %}
+                            <option value="{{c.nombre}}">{{c.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <button type="submit" class ="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "./base.html" %}
+{% block title %} Facturación {% endblock %}
+
+{% block body %}
+<h1>Facturación</h1>
+<hr>
+<div class="row">
+    <form action="/ConsultaVentasCliente/" method="POST">{% csrf_token %}
+        <div class="row">
+            <div class="col-sm">
+                <label for="fecha">Codigo cliente:</label>
+                <input type="text" list="CodigoCliente" placeholder="Codigo cliente:" name="Codigo_cliente1" class="form-control" required>
+                <datalist id="CodigoCliente">
+                    {% for c in cliente %}
+                    <option value="{{c.cedula}}"></option>
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-sm">
+                <label for="fecha">Fecha de Inicio:</label>
+                <input type="date" id="fecha1" name="fecha1" class="form-control" required>
+            </div>
+
+            <div class="col-sm">
+                <label for="fecha">Fecha de Fin:</label>
+                <input type="date" id="fecha2" name="fecha2" class="form-control" required>
+            </div>
+            <div class="col-sm">
+                <p></p>
+                <button type="submit" class="btn btn-success btn-block text-white">Enviar</button>
+            </div>            
+        </div>
+    </form>
+    <form action="/ConsultaVentasContratista/" method="POST">{% csrf_token %}-o-
+        <div class="row">
+            <div class="col-sm">
+                <label for="fecha">Contratista:</label>
+                <select id="Contratista" name="Nombre_Contratista" class="form-control" required>
+                    <option value=" ">Contratista</option>
+                    {% for c in contratista %}
+                    <option value="{{c.nombre}}">{{c.nombre}}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+            <div class="col-sm">
+                <label for="fecha">Fecha de Inicio:</label>
+                <input type="date" id="fecha1" name="fecha1" class="form-control" required>
+            </div>
+
+            <div class="col-sm">
+                <label for="fecha">Fecha de Fin:</label>
+                <input type="date" id="fecha2" name="fecha2" class="form-control" required>
+            </div>
+            <div class="col-sm">
+                <p></p>
+                <button type="submit" class="btn btn-success btn-block text-white">Enviar</button>
+            </div>            
+        </div>
+    </form>
+    <p></p>
+    <h1>Facturación</h1>
+    <div class="table-responsive py-2">
+        <table class="table table-striped" id="tabla-datos">
+            <thead>
+                <tr>
+                    <th>Cod</th>
+                    <th>Nombre</th>
+                    <th>Contratista</th>
+                    <th>Producto</th>
+                    <th>Cant</th>
+                    <th>Unit</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th>Pago</th>
+                    <th>Descripción</th>
+                </tr>
+            <tbody>
+                {% for c in ventas %}
+                <tr>
+                    <td>{{c.cdcomprador}}</td>
+                    <td>{{c.nombre}} {{c.apellido}}</td>
+                    <td>{{c.contratista}}</td>
+                    <td>{{c.producto}} </td>
+                    <td>{{c.cantidad}}</td>
+                    <td>${{c.precio}}</td>
+                    <td>${{c.precioTotal}}</td>
+                    <td>{{c.fecha}}</td>
+                    <td>{{c.pago}}</td>
+                    <td>{{c.descripcion}}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td> - </td>
+                    <td> - </td>
+                    <td> - </td>
+                    <td> - </td>
+                    <td> - </td>
+                    <td>Precio Total</td>
+                    <td>${{suma_preciototal}}</td>
+                </tr>
+            </tbody>
+            </thead>
+            <script>
+                $(document).ready(function () {
+                    // Limpiar la tabla al cargar la página
+                    $('#tabla-datos').find('tbody').empty();
+                });
+            </script>
+        </table>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-dismissible alert-success">
+            <strong class="text-dart">{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <form action="/exportar/">{% csrf_token %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block text-white">Descargar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm">
+            <form action="/LimpiarTablaF/">{% csrf_token %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block text-white">Limpiar Tabla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

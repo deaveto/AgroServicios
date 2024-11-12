@@ -1,0 +1,131 @@
+{% extends "./base.html" %}
+{% block title %} Reporte {% endblock %}
+{% block body %}
+{% load static %}
+
+<h1>Reporte</h1>
+<hr>
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+        <h3>Registro</h3>
+        <div class="card">
+            <div class="card-body">
+                <form action="/registrarcompra/" method="POST">{% csrf_token %}
+                    <div class="form-group">
+                        <p>Codigo cliente:</p>
+                        <input type="text" list="CodigoCliente" name= "Codigo_cliente" placeholder="Cantidad" class="form-control" value="{{ di }}" required>
+                        <datalist id="CodigoCliente">
+                            {% for c in cliente %}
+                            <option value="{{c.cedula}}"></option>
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <p></p>
+                        <p>Codigo Producto:</p>
+                        <select  id="CodigoProducto" name ="Nombre_producto" class="form-control"  required>   
+                            <option value="Codigo">Codigo</option>                     
+                            {% for c in producto %}
+                            <option value="{{c.codigopr}}">{{c.codigopr}} - {{c.producto}}</option>
+                            {% endfor %}
+                        
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <p></p>
+                        <p>Cantidad</p>
+                        <input type="text" id="txtCantidad" name="Cant" class="form-control" placeholder="Cantidad" minlength="0" maxlength="4" required>
+                    </div>
+                    <div class="form-group">
+                        <p></p>
+                        <p>Descripción</p>
+                        <input type="text" id="txtDesacripcion" name="desc" class="form-control" placeholder="Cantidad" minlength="0" maxlength="300">
+                    </div>
+                    <div class="form-group">
+                        <p></p>
+                        <button type="submit" class="btn btn-success btn-block text-white">Agregar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% autoescape off %}
+        {% if messages %}
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                    {% if 'error' in message.tags %}  
+                        <ul class="alert alert-dismissible alert-danger">{{ message }}</ul>
+                    {% else %}
+                        <ul class="alert alert-dismissible alert-success">{{ message }}</ul>
+                    {% endif %}
+            </li>
+            {% endfor %}
+        {% endif %}
+        {% endautoescape %}
+        
+    </div>
+
+    <div class="col-sm-12 col-md-6 col-lg-8 col-xl-10">
+        <h3>Productos a facturar</h3>
+        <div class="table-responsive py-2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Cod</th>
+                        <th>Nombre</th>
+                        <th>Contratista</th>
+                        <th>Producto</th>
+                        <th>Cant Compra</th>
+                        <th>Cant Bodega</th>
+                        <th>Unit</th>
+                        <th>Total</th>                        
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                    </tr>
+                <tbody>
+                    
+                    {% for c in facturas%}
+                    <tr>
+                        <td>{{c.cdcomprador}}</td>
+                        <td>{{c.apellido}}</td>
+                        <td>{{c.contratista}}</td>
+                        <td>{{c.codigopr}}-{{c.producto}} </td>
+                        <td>{{c.cantidad}}</td> 
+                        <td class="{% if c.cantidad_producto < 10 %}table-danger{% elif c.cantidad_producto < 50 %}table-warning{% endif %}">{{c.cantidad_producto}}</td>                      
+                        <td>${{c.precio}}</td>
+                        <td>${{c.precioTotal}}</td>
+                        <td>{{c.fecha}}</td>
+                        <td>{{c.descripcion}}</td>
+                        <th><a href="/edicionProductoCompra/{{c.di}}" class="btn btn-info">Editar</a></th>
+                        <th><a href="/eliminacionProductoCompra/{{c.di}}" class="btn btn-danger btnElimicacion">Eliminar</a></th>
+                    </tr>
+                    {% endfor %}
+                    
+                </tbody>
+                </thead>
+            </table>                               
+        </div>
+        <div class="row">
+            <div class="col-sm">
+               <p></p>
+            </div>
+            <div class="col-sm">
+                <form action="/LimpiarTablaR/">{% csrf_token %}
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block text-white">Limpiar Tabla</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm">
+                <form action="/copiarDatosFacturaAventes/" >{% csrf_token %}
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div> 
+    </div>
+
+</div>
+
+
+{% endblock %}

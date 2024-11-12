@@ -1,0 +1,86 @@
+{% extends "./base.html" %}
+{% block title %} Gestion de inventario {% endblock %}
+
+{% block body %}
+<h1>Clientes</h1>
+<hr>
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-5 col-xl-5">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-dismissible alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong class="text-dart">{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <h4>Cliente nuevo</h4>
+        <div class="card">
+            <div class="card-body">
+                <form action="/registrarcliente/" method="POST">{% csrf_token %}
+                    <div class ="form-group">
+                        <p></p>
+                        <input type="text" id ="txtCedula" name="txtCedula" class="form-control" placeholder="Cedula" minlength="8" maxlength="10" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <input type="text" id ="txtNombre" name="txtNombre" class="form-control" placeholder="Nombre" minlength="2" maxlength="20" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <input type="text" id ="txtApellido" name="txtApellido" class="form-control" placeholder="Apellido" minlength="2" maxlength="20" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <select id="Contratista" name="Nombre_Contratista" class="form-control" required>
+                            <option value="sin Contratista"> Sin Contratista</option>
+                            {% for c in contratista %}
+                            <option value="{{c.nombre}}">{{c.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <button type="submit" class ="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>            
+        </div>
+        <p></p>
+        <h5>Enlace para abministrar los contratistas</h5>
+        <th><a href="/contratista/" class="btn btn-success btn-block text-white">Contratista</a></th>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-7 col-xl-7">
+        <h4>Listado de clientes</h4>
+        <div class="table-responsive mi-tabla1">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Cedula</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Contratista</th>
+                        <th colspan="2">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in cliente %}
+                    <tr>
+                        <td>{{c.cedula}}</td>
+                        <td>{{c.nombre}}</td>
+                        <td>{{c.apellido}}</td>
+                        <td>{{c.contratista}}</td>
+                        <th><a href="/edicionCliente/{{c.cedula}}" class="btn btn-info">Editar</a></th>
+                        <th><a href="/eliminacioncliente/{{c.cedula}}" class="btn btn-danger btnElimicacion">Eliminar</a></th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>    
+</div>
+
+
+
+
+{% endblock %}

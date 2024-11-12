@@ -1,0 +1,74 @@
+{% extends "./base.html" %}
+{% block title %} Gestion de inventario {% endblock %}
+
+{% block body %}
+
+<h1>Contratista</h1>
+<hr>
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-5 col-xl-5">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-dismissible alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong class="text-dart">{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <h4>Nuevo Contratista</h4>
+        <div class="card">
+            <div class="card-body">
+                <form action="/registrarcontratista/" method="POST">{% csrf_token %}
+                    <div class ="form-group">
+                        <p></p>
+                        <input type="text" id ="txtNombre" name="txtNombre" class="form-control" placeholder="Nombre" minlength="2" maxlength="20" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <button type="submit" class ="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>            
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-7 col-xl-7">
+        <h4>Listado de clientes</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th colspan="2">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in contratista %}
+                    <tr>
+                        <td>{{c.nombre}}</td>
+                        <th><a href="/edicionContatista/{{c.id}}" class="btn btn-info">Editar</a></th>
+                        <th><a href="/eliminacioncontratistas/{{c.id}}" class="btn btn-danger btnElimicacion">Eliminar</a></th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>    
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

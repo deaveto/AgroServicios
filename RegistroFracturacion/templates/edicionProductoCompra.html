@@ -1,0 +1,44 @@
+{% extends "./base.html" %}
+
+{% block title %} Gestion de inventario {% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-4 offset-md-4"></div>
+    <h2>Edición de Producto en compra</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="/editarProductoCompra/" method="POST">{% csrf_token %}
+                    <div class ="form-group">
+                        <p></p>
+                        Codigo del cliente
+                        <input type="text" id ="txtCodigo" name="txtCodigo" value="{{factura.cdcomprador}}" class="form-control" placeholder="Codigo"  maxlength="4" readonly required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        Codigo del producto
+                        <input type="text" id ="txtProducto" name="txtProducto" value="{{factura.codigopr}}" class="form-control" placeholder="Producto"  maxlength="20" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        Cantidad
+                        <input type="text" id ="txtPrecio" name="txtCantidad" value="{{factura.cantidad}}" class="form-control" placeholder="Precio UND"  maxlength="10" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        Descripción
+                        <input type="text" id ="txtDescrip" name="txtDescrip" value="{{factura.descripcion}}" class="form-control" placeholder="Precio UND"  maxlength="10" required>
+                    </div>
+                    <div class ="form-group">
+                        <p></p>
+                        <button type="submit" class ="btn btn-success btn-block text-white">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
+
+
+
+
+{% endblock %}
